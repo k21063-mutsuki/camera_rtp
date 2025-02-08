@@ -1,0 +1,12 @@
+{
+    "service":{
+        "type":"pull", 
+        "endpoint":"http://localhost:8080/video_feed"
+    },
+    "parameters":{
+        "fps":30,
+        "port":9080,
+        "brightness":0.8
+    }
+
+}
