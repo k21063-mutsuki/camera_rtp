@@ -15,9 +15,6 @@ from string import Template
 import subprocess
 import numpy as np
 
-#import random
-
-# flask
 app = Flask(__name__)
 
 def connection():
@@ -41,7 +38,6 @@ def connection():
     return response
 
 def read_frames_from_ffmpeg(command, frame_queue, frame_size):
-    """ffmpegの標準出力からフレームを読み込み、キューに保存するスレッド用関数"""
     process = subprocess.Popen(command, stdout=subprocess.PIPE, bufsize=10**8)
     while True:
         raw_frame = process.stdout.read(frame_size)
@@ -53,24 +49,7 @@ def read_frames_from_ffmpeg(command, frame_queue, frame_size):
     process.wait()
 
 def frame_generator(sdp_file, width=1280, height=720):
-    """受け取ったフレームを逐次返すジェネレーター関数"""
     
-    # ffmpegコマンドを構築
-    # command = [
-    #     'ffmpeg',
-    #     '-protocol_whitelist', 'file,udp,rtp',
-    #     '-fflags', 'nobuffer',
-    #     '-flags', 'low_delay',
-    #     '-fflags', 'discardcorrupt',  # 不正なフレームを破棄
-    #     '-max_delay', '500000',       # 最大遅延を小さく設定（単位：マイクロ秒）
-    #     '-analyzeduration', '0',      # 入力分析時間をゼロに
-    #     '-rtbufsize', '100M',          # リアルタイムバッファサイズの増加
-    #     '-i', sdp_file,
-    #     '-f', 'rawvideo', 
-    #     '-pix_fmt', 'bgr24',
-    #     '-an',
-    #     '-'
-    # ]
     command = [
         'ffmpeg',
         '-protocol_whitelist', 'file,udp,rtp',
@@ -87,16 +66,13 @@ def frame_generator(sdp_file, width=1280, height=720):
         'pipe:1'
     ]
     
-    # フレームサイズの設定
-    frame_size = width * height * 3  # BGR24の場合
+    frame_size = width * height * 3  
     frame_queue = []
 
-    # フレーム読み込み用スレッドを開始
     frame_reader_thread = threading.Thread(target=read_frames_from_ffmpeg, args=(command, frame_queue, frame_size))
     frame_reader_thread.daemon = True
     frame_reader_thread.start()
 
-    # フレームが利用可能な場合に返す
     while True:
         if frame_queue:
             raw_frame = frame_queue.pop(0)
