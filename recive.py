@@ -23,7 +23,7 @@ height = resolution.get("height")
 
 sdp = "received_stream.sdp"
 
-# RTPストリームを開く（低遅延設定を追加）
+# RTPストリームの取得
 container = av.open(sdp, options={
     'protocol_whitelist': 'file,udp,rtp',
     'fflags': 'nobuffer',
@@ -32,10 +32,9 @@ container = av.open(sdp, options={
     'probesize': '500000'
 })
 
-frame_rate = 30  # 目標FPS
-frame_time = 1.0 / frame_rate  # 1フレームの時間（秒）
+frame_rate = 30  
+frame_time = 1.0 / frame_rate  
 
-# フレームを取得し、表示
 for frame in container.decode(video=0):
     start_time = time.time()
 
@@ -48,7 +47,7 @@ for frame in container.decode(video=0):
 
     elapsed_time = time.time() - start_time
     sleep_time = max(0, frame_time - elapsed_time)
-    time.sleep(sleep_time)  # フレームレートを一定に保つ
+    time.sleep(sleep_time)  
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
